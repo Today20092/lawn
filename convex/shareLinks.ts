@@ -346,7 +346,7 @@ export const setShortUrl = internalMutation({
   args: {
     shareLinkId: v.id("shareLinks"),
     shortUrl: v.string(),
-    shortLinkId: v.number(),
+    shortLinkId: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     await ctx.db.patch(args.shareLinkId, {

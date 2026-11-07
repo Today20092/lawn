@@ -6,10 +6,8 @@ import { internal } from "./_generated/api";
 
 const SNAZZY_API_BASE = "https://snazzy.fm/api";
 
-function getSnazzyApiKey(): string {
-  const key = process.env.SNAZZY_API_KEY;
-  if (!key) throw new Error("SNAZZY_API_KEY environment variable not set");
-  return key;
+function getSnazzyApiKey(): string | null {
+  return process.env.SNAZZY_API_KEY || null;
 }
 
 function generateAlias(): string {
@@ -27,11 +25,18 @@ export const createShortLink = action({
     longUrl: v.string(),
   },
   returns: v.union(
-    v.object({ shortUrl: v.string(), linkId: v.number() }),
+    v.object({ shortUrl: v.string(), linkId: v.optional(v.number()) }),
     v.null(),
   ),
   handler: async (ctx, args) => {
     const apiKey = getSnazzyApiKey();
+    if (!apiKey) {
+      await ctx.runMutation(internal.shareLinks.setShortUrl, {
+        shareLinkId: args.shareLinkId,
+        shortUrl: args.longUrl,
+      });
+      return { shortUrl: args.longUrl };
+    }
     const alias = generateAlias();
 
     try {
@@ -77,11 +82,18 @@ export const createProjectShortLink = action({
     longUrl: v.string(),
   },
   returns: v.union(
-    v.object({ shortUrl: v.string(), linkId: v.number() }),
+    v.object({ shortUrl: v.string(), linkId: v.optional(v.number()) }),
     v.null(),
   ),
   handler: async (ctx, args) => {
     const apiKey = getSnazzyApiKey();
+    if (!apiKey) {
+      await ctx.runMutation(internal.projectShareLinks.setShortUrl, {
+        shareLinkId: args.shareLinkId,
+        shortUrl: args.longUrl,
+      });
+      return { shortUrl: args.longUrl };
+    }
     const alias = generateAlias();
 
     try {
@@ -131,6 +143,7 @@ export const shortenUrl = action({
   ),
   handler: async (_ctx, args) => {
     const apiKey = getSnazzyApiKey();
+    if (!apiKey) return { shortUrl: args.longUrl };
     const alias = generateAlias();
 
     try {
@@ -168,6 +181,7 @@ export const deleteShortLink = action({
   returns: v.boolean(),
   handler: async (_ctx, args) => {
     const apiKey = getSnazzyApiKey();
+    if (!apiKey) return false;
 
     try {
       const response = await fetch(
