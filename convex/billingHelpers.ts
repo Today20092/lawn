@@ -12,8 +12,8 @@ export const TEAM_PLAN_MONTHLY_PRICE_USD: Record<TeamPlan, number> = {
   pro: 25,
 };
 
-// Self-hosted free mode: no billing; cap storage under Cloudflare R2's 10 GB free tier.
-export const FREE_STORAGE_LIMIT_BYTES = 9 * GIBIBYTE;
+// Self-hosted free mode: no billing; cap storage at 100 GB (about $1.35/month on R2 past the free 10 GB).
+export const FREE_STORAGE_LIMIT_BYTES = 100 * GIBIBYTE;
 
 export const TEAM_PLAN_STORAGE_LIMIT_BYTES: Record<TeamPlan, number> = {
   basic: FREE_STORAGE_LIMIT_BYTES,
@@ -124,7 +124,7 @@ export async function assertTeamCanStoreBytes(
   if (storageUsedBytes + requestedBytes > storageLimitBytes) {
     throw new ConvexError(
       state.plan === "pro"
-        ? "Storage is full (9 GB free limit). Delete old videos or versions to free up space."
+        ? "Storage is full (100 GB limit). Delete old videos or versions to free up space."
         : "Storage limit reached for the basic plan. Upgrade to continue uploading.",
     );
   }

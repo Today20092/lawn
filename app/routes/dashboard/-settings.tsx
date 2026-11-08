@@ -34,13 +34,13 @@ const BILLING_PLANS: Record<
   basic: {
     label: "Free",
     monthlyPriceUsd: 0,
-    storageLimitBytes: 9 * GIBIBYTE,
+    storageLimitBytes: 100 * GIBIBYTE,
     seats: "Unlimited",
   },
   pro: {
     label: "Free",
     monthlyPriceUsd: 0,
-    storageLimitBytes: 9 * GIBIBYTE,
+    storageLimitBytes: 100 * GIBIBYTE,
     seats: "Unlimited",
   },
 };
