@@ -16,6 +16,7 @@ import {
   buildMuxThumbnailUrl,
   createMuxAssetFromInputUrl,
   createPublicPlaybackId,
+  deleteMuxAsset,
   getMuxAsset,
 } from "./mux";
 import { BUCKET_NAME, getS3Client } from "./s3";
@@ -1245,5 +1246,40 @@ export const getSharedDownloadUrl = action({
       title: result.video.title,
       contentType: result.video.contentType,
     });
+  },
+});
+
+// Frees R2 space and the Mux slot for a deleted video. Each step is best-effort and logged.
+export const purgeDeletedVideoStorage = internalAction({
+  args: {
+    s3Key: v.optional(v.string()),
+    s3MultipartUploadId: v.optional(v.string()),
+    muxAssetId: v.optional(v.string()),
+  },
+  returns: v.null(),
+  handler: async (_ctx, args) => {
+    if (args.s3Key) {
+      try {
+        if (args.s3MultipartUploadId) {
+          await abortMultipartUploadSession({
+            key: args.s3Key,
+            uploadId: args.s3MultipartUploadId,
+          });
+        } else {
+          await deleteUploadedObject(args.s3Key);
+        }
+      } catch (error) {
+        console.error("Failed to delete video file from storage", args.s3Key, error);
+      }
+    }
+    if (args.muxAssetId) {
+      try {
+        await deleteMuxAsset(args.muxAssetId);
+      } catch (error) {
+        // An already-deleted asset returns 404; log and move on.
+        console.error("Failed to delete Mux asset", args.muxAssetId, error);
+      }
+    }
+    return null;
   },
 });

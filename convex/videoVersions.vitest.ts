@@ -1743,3 +1743,79 @@ test("version stack operations enforce the explicit stack limit", async () => {
     `at most ${MAX_VIDEO_STACK_SIZE} versions`,
   );
 });
+
+test("schedules R2 and Mux cleanup when a video is deleted", async () => {
+  const t = convexTest(schema, modules);
+  const videoId = await t.run(async (ctx) => {
+    const teamId = await ctx.db.insert("teams", {
+      name: "Garden",
+      slug: "garden",
+      ownerClerkId: "owner",
+      plan: "basic",
+    });
+    await ctx.db.insert("teamMembers", {
+      teamId,
+      userClerkId: "owner",
+      userEmail: "owner@example.com",
+      userName: "Owner",
+      role: "owner",
+    });
+    const projectId = await ctx.db.insert("projects", { teamId, name: "Campaign" });
+    return await ctx.db.insert("videos", {
+      projectId,
+      uploadedByClerkId: "owner",
+      uploaderName: "Owner",
+      title: "Cut",
+      visibility: "public",
+      publicId: "cleanup-cut",
+      status: "ready",
+      workflowStatus: "review",
+      s3Key: "videos/x/1.mp4",
+      muxAssetId: "asset_123",
+    });
+  });
+
+  await t.withIdentity({ subject: "owner" }).mutation(api.videos.remove, { videoId });
+
+  const jobs = await t.run((ctx) => ctx.db.system.query("_scheduled_functions").collect());
+  const cleanup = jobs.find((job) => job.name.includes("purgeDeletedVideoStorage"));
+  expect(cleanup?.args[0]).toMatchObject({ s3Key: "videos/x/1.mp4", muxAssetId: "asset_123" });
+});
+
+test("schedules R2 and Mux cleanup when a whole stack is deleted", async () => {
+  const t = convexTest(schema, modules);
+  const videoId = await t.run(async (ctx) => {
+    const teamId = await ctx.db.insert("teams", {
+      name: "Garden",
+      slug: "garden",
+      ownerClerkId: "owner",
+      plan: "basic",
+    });
+    await ctx.db.insert("teamMembers", {
+      teamId,
+      userClerkId: "owner",
+      userEmail: "owner@example.com",
+      userName: "Owner",
+      role: "owner",
+    });
+    const projectId = await ctx.db.insert("projects", { teamId, name: "Campaign" });
+    return await ctx.db.insert("videos", {
+      projectId,
+      uploadedByClerkId: "owner",
+      uploaderName: "Owner",
+      title: "Cut",
+      visibility: "public",
+      publicId: "cleanup-stack",
+      status: "ready",
+      workflowStatus: "review",
+      s3Key: "videos/x/1.mp4",
+      muxAssetId: "asset_123",
+    });
+  });
+
+  await t.withIdentity({ subject: "owner" }).mutation(api.videos.removeStack, { videoId });
+
+  const jobs = await t.run((ctx) => ctx.db.system.query("_scheduled_functions").collect());
+  const cleanup = jobs.find((job) => job.name.includes("purgeDeletedVideoStorage"));
+  expect(cleanup?.args[0]).toMatchObject({ s3Key: "videos/x/1.mp4", muxAssetId: "asset_123" });
+});

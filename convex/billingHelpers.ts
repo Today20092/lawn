@@ -12,9 +12,12 @@ export const TEAM_PLAN_MONTHLY_PRICE_USD: Record<TeamPlan, number> = {
   pro: 25,
 };
 
+// Self-hosted free mode: no billing; cap storage under Cloudflare R2's 10 GB free tier.
+export const FREE_STORAGE_LIMIT_BYTES = 9 * GIBIBYTE;
+
 export const TEAM_PLAN_STORAGE_LIMIT_BYTES: Record<TeamPlan, number> = {
-  basic: 100 * GIBIBYTE,
-  pro: 1024 * GIBIBYTE,
+  basic: FREE_STORAGE_LIMIT_BYTES,
+  pro: FREE_STORAGE_LIMIT_BYTES,
 };
 
 function hasText(value: string | undefined | null): value is string {
@@ -61,19 +64,13 @@ export async function getTeamSubscriptionByOrgId(ctx: BillingCtx, teamId: Id<"te
 }
 
 export async function getTeamSubscriptionState(ctx: BillingCtx, teamId: Id<"teams">) {
-  const [team, subscription] = await Promise.all([
-    ctx.db.get(teamId),
-    getTeamSubscriptionByOrgId(ctx, teamId),
-  ]);
+  const team = await ctx.db.get(teamId);
   if (!team) {
     throw new Error("Team not found");
   }
-
-  const subscriptionPlan = resolvePlanFromStripePriceId(subscription?.priceId);
-  const plan = subscriptionPlan ?? normalizeStoredTeamPlan(team.plan);
-  const hasActiveSubscription = hasActiveTeamSubscriptionStatus(subscription?.status);
-
-  return { team, subscription, plan, hasActiveSubscription };
+  // Billing disabled: every team is treated as active.
+  const subscription = null as Awaited<ReturnType<typeof getTeamSubscriptionByOrgId>>;
+  return { team, subscription, plan: "pro" as TeamPlan, hasActiveSubscription: true };
 }
 
 export async function getTeamStorageUsedBytes(ctx: BillingCtx, teamId: Id<"teams">) {
@@ -127,7 +124,7 @@ export async function assertTeamCanStoreBytes(
   if (storageUsedBytes + requestedBytes > storageLimitBytes) {
     throw new ConvexError(
       state.plan === "pro"
-        ? "Storage limit reached for the pro plan. Delete old videos or versions to free up space."
+        ? "Storage is full (9 GB free limit). Delete old videos or versions to free up space."
         : "Storage limit reached for the basic plan. Upgrade to continue uploading.",
     );
   }

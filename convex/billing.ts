@@ -17,8 +17,17 @@ import {
   type TeamPlan,
 } from "./billingHelpers";
 
-const stripeClient = new StripeSubscriptions(components.stripe, {});
-const stripe = new Stripe(stripeClient.apiKey);
+// Created on first use so deployments without Stripe keys (billing disabled) still load.
+let stripeClientInstance: StripeSubscriptions | undefined;
+let stripeInstance: Stripe | undefined;
+function getStripeClient() {
+  stripeClientInstance ??= new StripeSubscriptions(components.stripe, {});
+  return stripeClientInstance;
+}
+function getStripe() {
+  stripeInstance ??= new Stripe(getStripeClient().apiKey);
+  return stripeInstance;
+}
 const TEAM_TRIAL_DAYS = 7;
 const PLAN_RANK = {
   basic: 0,
@@ -103,7 +112,7 @@ export const createSubscriptionCheckout = action({
         typeof identity.email === "string" && identity.email.length > 0
           ? identity.email
           : undefined;
-      const customer = await stripeClient.createCustomer(ctx, {
+      const customer = await getStripeClient().createCustomer(ctx, {
         email: userEmail,
         name: team.name,
         metadata: {
@@ -149,7 +158,7 @@ export const createSubscriptionCheckout = action({
       sessionParams.customer = stripeCustomerId;
     }
 
-    const session = await stripe.checkout.sessions.create(sessionParams);
+    const session = await getStripe().checkout.sessions.create(sessionParams);
     return {
       sessionId: session.id,
       url: session.url,
@@ -179,7 +188,7 @@ export const reconcileTeamSubscription = action({
       return { status: "no_customer" as const };
     }
 
-    const subscriptions = await stripe.subscriptions.list({
+    const subscriptions = await getStripe().subscriptions.list({
       customer: team.stripeCustomerId,
       status: "all",
       limit: 100,
@@ -259,7 +268,7 @@ export const createCustomerPortalSession = action({
       throw new Error("No Stripe customer found for this team yet.");
     }
 
-    return await stripeClient.createCustomerPortalSession(ctx, {
+    return await getStripeClient().createCustomerPortalSession(ctx, {
       customerId: stripeCustomerId,
       returnUrl: args.returnUrl,
     });
@@ -299,7 +308,7 @@ export const updateTeamSubscriptionPlan = action({
     }
 
     const stripePriceId = getStripePriceIdForPlan(args.plan);
-    const subscription = await stripe.subscriptions.retrieve(stripeSubscriptionId);
+    const subscription = await getStripe().subscriptions.retrieve(stripeSubscriptionId);
 
     if (!hasActiveTeamSubscriptionStatus(subscription.status)) {
       throw new Error("Only active subscriptions can be upgraded.");
@@ -324,7 +333,7 @@ export const updateTeamSubscriptionPlan = action({
       throw new Error("Use the billing portal to downgrade this subscription.");
     }
 
-    const updatedSubscription = await stripe.subscriptions.update(stripeSubscriptionId, {
+    const updatedSubscription = await getStripe().subscriptions.update(stripeSubscriptionId, {
       items: [
         {
           id: currentItem.id,

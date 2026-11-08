@@ -228,6 +228,15 @@ export async function deleteShareAccessGrantsForLink(
  * delete many videos in one transaction (e.g. the folder subtree cascade) can
  * budget against Convex's per-transaction limits.
  */
+async function scheduleVideoStorageCleanup(ctx: MutationCtx, video: Doc<"videos">) {
+  if (!video.s3Key && !video.muxAssetId) return;
+  await ctx.scheduler.runAfter(0, internal.videoActions.purgeDeletedVideoStorage, {
+    s3Key: video.s3Key,
+    s3MultipartUploadId: video.s3MultipartUploadId,
+    muxAssetId: video.muxAssetId,
+  });
+}
+
 export async function deleteVideoAndDependents(
   ctx: MutationCtx,
   videoId: Id<"videos">,
@@ -257,6 +266,7 @@ export async function deleteVideoAndDependents(
   }
 
   await rewireStackBeforeDelete(ctx, video);
+  await scheduleVideoStorageCleanup(ctx, video);
   await ctx.db.delete(videoId);
   deleted++;
 
@@ -316,6 +326,7 @@ export async function deleteVideoAndDependentsBatch(
   if (remaining === 0) return { deleted, done: false };
 
   await rewireStackBeforeDelete(ctx, video);
+  await scheduleVideoStorageCleanup(ctx, video);
   await ctx.db.delete(videoId);
   return { deleted: deleted + 1, done: true };
 }
@@ -390,6 +401,7 @@ async function deleteVersionAndRenumberStack(ctx: MutationCtx, video: Doc<"video
     );
   }
 
+  await scheduleVideoStorageCleanup(ctx, video);
   await ctx.db.delete(video._id);
   return replacementVideoId;
 }
@@ -980,6 +992,8 @@ async function loadStackForDelete(ctx: MutationCtx, videoId: Id<"videos">) {
 
 async function deleteStackVersions(ctx: MutationCtx, versionIds: Id<"videos">[]) {
   for (const versionId of versionIds) {
+    const version = await ctx.db.get(versionId);
+    if (version) await scheduleVideoStorageCleanup(ctx, version);
     await ctx.db.delete(versionId);
     await ctx.scheduler.runAfter(0, internal.videos.continueVideoDelete, { videoId: versionId });
   }

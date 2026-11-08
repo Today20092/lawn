@@ -52,3 +52,9 @@ next-env.d.ts
 # Playwright artifacts
 /test-results/
 /playwright-report/
+
+# Local Cloudflare Workers deploy
+.deploy-worker/
+deploy-worker.wrangler.jsonc
+.wrangler/
+.env.production.local
