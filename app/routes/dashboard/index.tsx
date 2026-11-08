@@ -79,7 +79,7 @@ export default function DashboardPage() {
   if (isLoading || (teams && teams.length > 0)) {
     return (
       <div className="h-full flex flex-col">
-        <DashboardHeader paths={[{ label: "Snazzy Labs" }]} />
+        <DashboardHeader paths={[{ label: "Haithem Studio" }]} />
         <div className="flex-1 flex items-center justify-center">
           <p className="text-[#888] text-sm">Loading...</p>
         </div>
@@ -87,10 +87,10 @@ export default function DashboardPage() {
     );
   }
 
-  // Empty state - no teams (shouldn't normally happen for Snazzy Labs)
+  // Empty state - no teams (shouldn't normally happen for Haithem Studio)
   return (
     <div className="h-full flex flex-col">
-      <DashboardHeader paths={[{ label: "Snazzy Labs" }]} />
+      <DashboardHeader paths={[{ label: "Haithem Studio" }]} />
       <div className="flex-1 flex items-center justify-center p-8">
         <p className="text-[#888] text-sm">No teams found.</p>
       </div>

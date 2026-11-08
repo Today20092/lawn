@@ -62,7 +62,7 @@ export default function InvitePage() {
           <CardContent>
             <Link to="/" preload="intent" className="block">
               <Button variant="outline" className="w-full">
-                Go to Snazzy Labs
+                Go to Haithem Studio
               </Button>
             </Link>
           </CardContent>

@@ -490,7 +490,8 @@ export default function ProjectPage({
                 <Share2 className="h-3.5 w-3.5 sm:mr-1.5" />
                 <span className="hidden lg:inline">Share</span>
               </Button>
-              {notionPageUrl ? (
+              {/* Notion buttons only when VITE_NOTION_ENABLED=true; this team uses Plane. */}
+              {import.meta.env.VITE_NOTION_ENABLED !== "true" ? null : notionPageUrl ? (
                 <>
                   <Button
                     variant="outline"

@@ -549,8 +549,11 @@ export const remove = mutation({
 });
 
 export async function purgeAndDeleteVideo(ctx: MutationCtx, videoId: Id<"videos">) {
+  // Read the asset id now: the video row is deleted before the action runs.
+  const video = await ctx.db.get(videoId);
   await ctx.scheduler.runAfter(0, internal.videoActions.purgeVideoFiles, {
     videoId: videoId as string,
+    muxAssetId: video?.muxAssetId,
   });
 
   const attachments = await ctx.db

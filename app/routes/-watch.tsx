@@ -462,7 +462,7 @@ export default function WatchPage() {
           </CardHeader>
           <CardContent>
             <Link to="/" preload="intent" className="block">
-              <Button variant="outline" className="w-full">Go to Snazzy Labs</Button>
+              <Button variant="outline" className="w-full">Go to Haithem Studio</Button>
             </Link>
           </CardContent>
         </Card>
@@ -811,7 +811,7 @@ export default function WatchPage() {
               to="/"
               className="text-[#888] hover:text-[#1a1a1a] text-sm flex items-center gap-2 font-bold"
             >
-              Snazzy Labs
+              Haithem Studio
             </Link>
           )}
           <div className="hidden md:block h-4 w-[2px] bg-[#1a1a1a]/20" />

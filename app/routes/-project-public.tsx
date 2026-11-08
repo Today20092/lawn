@@ -137,7 +137,7 @@ export default function ProjectPublicPage() {
           <CardContent>
             <Link to="/" preload="intent" className="block">
               <Button variant="outline" className="w-full">
-                Go to Snazzy Labs
+                Go to Haithem Studio
               </Button>
             </Link>
           </CardContent>
@@ -239,7 +239,7 @@ export default function ProjectPublicPage() {
         <div className="max-w-6xl mx-auto px-6 py-4">
           <div className="flex items-center gap-3">
             <Link to="/" className="text-[#888] hover:text-[#1a1a1a] text-sm font-bold">
-              Snazzy Labs
+              Haithem Studio
             </Link>
             <div className="h-4 w-[2px] bg-[#1a1a1a]/20" />
             <h1 className="text-xl font-black text-[#1a1a1a]">{project.name}</h1>

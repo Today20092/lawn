@@ -23,6 +23,7 @@ import {
   buildMuxThumbnailUrl,
   createMuxAssetFromInputUrl,
   createPublicPlaybackId,
+  deleteMuxAsset,
   getMuxAsset,
 } from "./mux";
 import { BUCKET_NAME, buildPublicContentUrl, getS3Client, getS3SigningClient } from "./s3";
@@ -782,11 +783,19 @@ async function deleteObjectsByKeys(keys: string[]) {
 }
 
 export const purgeVideoFiles = internalAction({
-  args: { videoId: v.string() },
+  args: { videoId: v.string(), muxAssetId: v.optional(v.string()) },
   returns: v.null(),
   handler: async (_ctx, args) => {
     const prefix = `videos/${args.videoId}/`;
     await deleteAllObjectsWithPrefix(prefix);
+    if (args.muxAssetId) {
+      try {
+        await deleteMuxAsset(args.muxAssetId);
+      } catch (error) {
+        // Already-deleted assets return 404; anything else is logged, not retried.
+        console.error("Failed to delete Mux asset", args.muxAssetId, error);
+      }
+    }
     return null;
   },
 });

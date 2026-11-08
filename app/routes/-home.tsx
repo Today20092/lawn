@@ -24,10 +24,10 @@ export default function Homepage() {
           Restricted Access
         </p>
         <h1 className="mt-3 text-xl font-semibold text-[#111827]">
-          Snazzy Labs Proofing Tool
+          Haithem Studio Review
         </h1>
         <p className="mt-3 text-sm text-[#6b7280]">
-          OAuth login for Snazzy Labs team members only.
+          OAuth login for Haithem Studio team members only.
         </p>
 
         {isLoading || isCheckingMembership ? (
@@ -40,7 +40,7 @@ export default function Homepage() {
               This account is not currently provisioned.
             </p>
             <a
-              href="mailto:videos@snazzylabs.com"
+              href="mailto:haithum.alqahaf@gmail.com?subject=Review%20site%20access"
               className="text-sm font-semibold text-[#111827] underline underline-offset-4"
             >
               Request access

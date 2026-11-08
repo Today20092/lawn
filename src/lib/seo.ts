@@ -1,5 +1,5 @@
-const SITE_URL = "https://proof.snazzylabs.com";
-const SITE_NAME = "Snazzy Labs";
+const SITE_URL = "https://review.yahalausa.net";
+const SITE_NAME = "Haithem Studio";
 const DEFAULT_OG_IMAGE = "/og/default.png";
 
 type SeoOptions = {
@@ -24,7 +24,7 @@ export function seoHead({
   siteName = SITE_NAME,
 }: SeoOptions) {
   const fullTitle =
-    appendSiteName && !title.toLowerCase().includes("snazzy")
+    appendSiteName && !title.toLowerCase().includes("haithem")
       ? `${title} | ${SITE_NAME}`
       : title;
   const url = `${SITE_URL}${path}`;

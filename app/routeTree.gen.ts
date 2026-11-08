@@ -19,8 +19,8 @@ import { Route as WatchPublicIdRouteImport } from './routes/watch.$publicId'
 import { Route as SignUpSplatRouteImport } from './routes/sign-up.$'
 import { Route as SignInSplatRouteImport } from './routes/sign-in.$'
 import { Route as ShareTokenRouteImport } from './routes/share.$token'
-import { Route as InviteTokenRouteImport } from './routes/invite.$token'
 import { Route as ProjectsPublicIdRouteImport } from './routes/projects.$publicId'
+import { Route as InviteTokenRouteImport } from './routes/invite.$token'
 import { Route as DashboardTeamSlugRouteImport } from './routes/dashboard/$teamSlug'
 import { Route as DashboardTeamSlugIndexRouteImport } from './routes/dashboard/$teamSlug.index'
 import { Route as DashboardTeamSlugSettingsRouteImport } from './routes/dashboard/$teamSlug.settings'
@@ -78,14 +78,14 @@ const ShareTokenRoute = ShareTokenRouteImport.update({
   path: '/share/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
-const InviteTokenRoute = InviteTokenRouteImport.update({
-  id: '/invite/$token',
-  path: '/invite/$token',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ProjectsPublicIdRoute = ProjectsPublicIdRouteImport.update({
   id: '/projects/$publicId',
   path: '/projects/$publicId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InviteTokenRoute = InviteTokenRouteImport.update({
+  id: '/invite/$token',
+  path: '/invite/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardTeamSlugRoute = DashboardTeamSlugRouteImport.update({
@@ -325,18 +325,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShareTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/invite/$token': {
-      id: '/invite/$token'
-      path: '/invite/$token'
-      fullPath: '/invite/$token'
-      preLoaderRoute: typeof InviteTokenRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/projects/$publicId': {
       id: '/projects/$publicId'
       path: '/projects/$publicId'
       fullPath: '/projects/$publicId'
       preLoaderRoute: typeof ProjectsPublicIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/invite/$token': {
+      id: '/invite/$token'
+      path: '/invite/$token'
+      fullPath: '/invite/$token'
+      preLoaderRoute: typeof InviteTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard/$teamSlug': {

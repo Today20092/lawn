@@ -143,7 +143,7 @@ export function DashboardHeader({
           className="hover:text-[#2F6DB4] transition-colors mr-2 flex-shrink-0"
           {...prewarmHomeIntentHandlers}
         >
-          Snazzy Labs
+          Haithem Studio
         </Link>
         {paths.map((path, index) => {
           const isIntermediate = paths.length >= 2 && index < paths.length - 1;

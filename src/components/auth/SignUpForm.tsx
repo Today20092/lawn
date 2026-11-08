@@ -39,7 +39,7 @@ export function SignUpForm() {
         Create Account
       </h1>
       <p className="text-[#888] font-mono text-sm mb-6">
-        Get started with Snazzy Labs
+        Get started with Haithem Studio
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-4">

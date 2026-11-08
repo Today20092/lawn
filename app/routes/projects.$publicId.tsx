@@ -6,7 +6,7 @@ export const Route = createFileRoute("/projects/$publicId")({
   head: () =>
     seoHead({
       title: "Project",
-      description: "Browse videos in this project on Snazzy Labs.",
+      description: "Browse videos in this project on Haithem Studio.",
       path: "/projects",
       noIndex: true,
     }),

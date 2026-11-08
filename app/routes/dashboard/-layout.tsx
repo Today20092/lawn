@@ -322,7 +322,7 @@ export default function DashboardLayout() {
             Team membership required
           </h1>
           <p className="mt-3 text-sm text-[#4b5563]">
-            Your authenticated account is not an active Snazzy Labs team member.
+            Your authenticated account is not an active Haithem Studio team member.
           </p>
           <div className="mt-6">
             <Link
